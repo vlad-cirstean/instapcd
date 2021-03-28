@@ -1,27 +1,30 @@
-let socket = new WebSocket("wss://javascript.info/article/websocket/demo/hello");
+var client = new WebSocket('ws://localhost:9000/', 'echo-protocol');
 
-socket.onopen = function(e) {
-  alert("[open] Connection established");
-  alert("Sending to server");
-  socket.send("My name is John");
+client.onerror = function() {
+    console.log('Connection Error');
 };
 
-socket.onmessage = function(event) {
-  alert(`[message] Data received from server: ${event.data}`);
+client.onopen = function() {
+    console.log('WebSocket Client Connected');
+
+    function sendNumber() {
+        if (client.readyState === client.OPEN) {
+            var number = Math.round(Math.random() * 0xFFFFFF);
+            client.send(number.toString());
+            setTimeout(sendNumber, 1000);
+        }
+    }
+    sendNumber();
 };
 
-socket.onclose = function(event) {
-  if (event.wasClean) {
-    alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-  } else {
-    // e.g. server process killed or network down
-    // event.code is usually 1006 in this case
-    alert('[close] Connection died');
-  }
+client.onclose = function() {
+    console.log('echo-protocol Client Closed');
 };
 
-socket.onerror = function(error) {
-  alert(`[error] ${error.message}`);
+client.onmessage = function(e) {
+    if (typeof e.data === 'string') {
+        console.log("Received: '" + e.data + "'");
+    }
 };
 
 $(document).ready(function (e) {
