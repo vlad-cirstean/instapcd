@@ -1,0 +1,41 @@
+img{
+    height: auto;
+    width: 70vh;
+}
+.card{
+    width: 70vh;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    margin-bottom: 50px;
+}
+.user{
+    width: 15vw;
+    margin: 0;
+    display: inline;
+}
+.hello{
+    /* border: 1px solid black; */
+    width: 35vh;
+    height: 10vh;
+    text-align: center;
+    margin: 0 auto;
+    margin-top: 10vh;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    color: navy;
+    font-family: "Lucida Console", "Courier New", monospace;
+
+}
+form{
+    /* border: 1px solid black; */
+    width: auto;
+    height: 15vh;
+    margin: 0 auto;
+    margin-top: 10vh;
+    position: absolute;
+    top: 0; bottom: 0; right: 0;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    text-align: center;
+    border-radius: 2%;
+}
