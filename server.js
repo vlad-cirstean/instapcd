@@ -6,7 +6,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const passport = require('passport');
-const { Strategy, Issuer, generators, custom } = require('openid-client');
+const { Strategy, Issuer } = require('openid-client');
 const port = 8000;
 app.use(express.static(path.join(__dirname, 'src')));
 app.use(express.static('photos'));
@@ -15,6 +15,26 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({ secret: 'secret squirrel', resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
+
+const firebase = require('firebase');
+const { Storage } = require('@google-cloud/storage');
+const storage = new Storage();
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyAqTvpII_7ku7pTDkNS9G5I_VqV-pUv59A',
+  authDomain: 'premium-state-307816.firebaseapp.com',
+  projectId: 'premium-state-307816',
+  storageBucket: 'premium-state-307816.appspot.com',
+  messagingSenderId: '980649016500',
+  appId: '1:980649016500:web:8fde18204c96adbf0debe1'
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.firestore();
+const myBucket = storage.bucket('pcd-bucket-1');
+const photos = db.collection('photos');
+
 
 let client;
 const config = {
@@ -30,9 +50,33 @@ app.get('/', (req, res) => {
   res.sendFile('index.html', { root: __dirname });
 });
 
-app.get('/home', checkAuthentication, (req, res) => {
+app.get('/home', checkAuthentication, async (req, res) => {
   res.cookie('user', _.get(req, [ 'session', 'passport', 'user', 'userinfo', 'sub' ]));
+
   res.sendFile('src/home.html', { root: __dirname });
+});
+
+app.get('/getImages', checkAuthentication, async (req, res) => {
+  const last_photos = await photos.orderBy('date', 'desc').get();
+
+  var photo_list = [];
+
+  last_photos.forEach(doc => {
+    photo_list.push(doc.id);
+  });
+
+  res.send(photo_list);
+});
+
+
+app.get('/images/:id', async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  if (!id) {
+    return res.end();
+  }
+  const file = myBucket.file(id);
+  file.createReadStream().pipe(res);
 });
 
 
