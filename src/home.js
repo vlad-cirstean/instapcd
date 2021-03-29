@@ -37,7 +37,7 @@ $(document).ready(function (e) {
     alert('catched!');
     $.ajax({
       type: 'POST',
-      url: '', //$(this).attr('action')
+      url: 'http://localhost:8080/upload_image',
       data: formData,
       cache: false,
       contentType: false,
@@ -66,3 +66,17 @@ function setUser() {
 }
 
 setUser();
+
+const baseUrl = 'http://localhost:8000';
+
+async function init() {
+  $('#images-id').empty();
+  const res = await fetch(`${baseUrl}/getImages`);
+  const images = await res.json();
+  images.forEach(i => {
+      $('#images-id').append(`<div class="card center-block"><img src="${baseUrl + '/images/' + i}" class="img-responsive center-block" /></div>`);
+    }
+  );
+}
+
+init();
