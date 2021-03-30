@@ -11,7 +11,7 @@ const configuration = {
   } ]
 };
 
-const oidc = new Provider('http://35.222.18.182:3000', configuration);
+const oidc = new Provider('http://localhost:3000', configuration);
 
 
 const server = oidc.listen(PORT, () => {
