@@ -19,7 +19,7 @@ app.use(require('cors')());
 
 const firebase = require('firebase');
 const { Storage } = require('@google-cloud/storage');
-const storage = new Storage({keyFilename: './keys.json'});
+const storage = new Storage({ keyFilename: './keys.json' });
 
 const firebaseConfig = {
   apiKey: 'AIzaSyAqTvpII_7ku7pTDkNS9G5I_VqV-pUv59A',
@@ -145,53 +145,47 @@ app.get('/callback', passport.authenticate('oidc', {
 }));
 
 
-var WebSocketServer = require('websocket').server;
+const WebSocket = require('ws');
 
-var server = http.createServer(function(request, response) {
-  console.log((new Date()) + ' Received request for ' + request.url);
-  response.writeHead(404);
-  response.end();
+const WS_PORT = 9000;
+
+const wsServer = new WebSocket.Server({ port: WS_PORT }, () => console.log(`WS server is listening at ws://localhost:${WS_PORT}`));
+
+// array of connected websocket clients
+let connectedClients = [];
+
+wsServer.on('connection', (ws, req) => {
+  console.log('Connected');
+  // add new connected client
+  connectedClients.push(ws);
+  // listen for messages from the streamer, the clients will not send anything so we don't need to filter
+  ws.on('message', data => {
+    // send the base64 encoded frame to each connected ws
+    connectedClients.forEach((ws, i) => {
+      if (ws.readyState === ws.OPEN) { // check if it is still connected
+        ws.send(data); // send
+      } else { // if it's not connected remove from the array of connected ws
+        connectedClients.splice(i, 1);
+      }
+    });
+  });
 });
-server.listen(9000, function() {
-  console.log((new Date()) + ' Server is listening on port 8080');
-});
 
-wsServer = new WebSocketServer({
-  httpServer: server,
-  // You should not use autoAcceptConnections for production
-  // applications, as it defeats all standard cross-origin protection
-  // facilities built into the protocol and the browser.  You should
-  // *always* verify the connection's origin and decide whether or not
-  // to accept it.
-  autoAcceptConnections: false
-});
+let lastArray = [];
+setInterval(async () => {
+  const last_photos = await photos.orderBy('date', 'desc').get();
 
-function originIsAllowed(origin) {
-  // put logic here to detect whether the specified origin is allowed.
-  return true;
-}
+  var photo_list = [];
 
-wsServer.on('request', function(request) {
-  if (!originIsAllowed(request.origin)) {
-    // Make sure we only accept requests from an allowed origin
-    request.reject();
-    console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
-    return;
+  last_photos.forEach(doc => {
+    photo_list.push(doc.id);
+  });
+
+  const diff = _.difference(photo_list, lastArray);
+  if (diff.length) {
+    lastArray = photo_list;
+    connectedClients.forEach(i => {
+      i.send('update');
+    });
   }
-
-  var connection = request.accept('echo-protocol', request.origin);
-  console.log((new Date()) + ' Connection accepted.');
-  connection.on('message', function(message) {
-    if (message.type === 'utf8') {
-      console.log('Received Message: ' + message.utf8Data);
-      connection.sendUTF(message.utf8Data);
-    }
-    else if (message.type === 'binary') {
-      console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
-      connection.sendBytes(message.binaryData);
-    }
-  });
-  connection.on('close', function(reasonCode, description) {
-    console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
-  });
-});
+}, 1000);

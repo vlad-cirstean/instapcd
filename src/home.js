@@ -1,4 +1,4 @@
-var client = new WebSocket('ws://localhost:9000/', 'echo-protocol');
+var client = new WebSocket('ws://localhost:9000/');
 
 client.onerror = function () {
   console.log('Connection Error');
@@ -15,7 +15,7 @@ client.onopen = function () {
     }
   }
 
-  sendNumber();
+  // sendNumber();
 };
 
 client.onclose = function () {
@@ -26,18 +26,18 @@ client.onmessage = function (e) {
   if (typeof e.data === 'string') {
     console.log('Received: \'' + e.data + '\'');
   }
+  init();
 };
 
 $(document).ready(function (e) {
-  alert('hello!');
   $('#uploadImage').on('submit', (function (e) {
     e.preventDefault();
     var formData = new FormData(this);
     formData.append('user', getUser());
-    alert('catched!');
+    alert('done!');
     $.ajax({
       type: 'POST',
-      url: 'http://localhost:8080/upload_image',
+      url: 'https://premium-state-307816.ew.r.appspot.com/upload_image',
       data: formData,
       cache: false,
       contentType: false,
