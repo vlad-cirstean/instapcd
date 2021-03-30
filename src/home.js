@@ -1,4 +1,4 @@
-var client = new WebSocket('ws://localhost:9000/');
+var client = new WebSocket('ws://35.222.18.182:9000/');
 
 client.onerror = function () {
   console.log('Connection Error');
@@ -67,7 +67,7 @@ function setUser() {
 
 setUser();
 
-const baseUrl = 'http://localhost:8000';
+const baseUrl = 'http://35.222.18.182:8000';
 
 async function init() {
   $('#images-id').empty();

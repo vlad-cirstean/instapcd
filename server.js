@@ -39,11 +39,11 @@ const photos = db.collection('photos');
 
 let client;
 const config = {
-  issuer: 'http://localhost:1234',
+  issuer: 'http://35.222.18.182:1234',
   clientId: 'foo',
   clientSecret: 'bar',
   scope: 'openid',
-  callbackURL: 'http://localhost:8000/callback'
+  callbackURL: 'http://35.222.18.182:8000/callback'
 };
 
 

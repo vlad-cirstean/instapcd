@@ -5,13 +5,13 @@ const configuration = {
   clients: [ {
     client_id: 'foo',
     client_secret: 'bar',
-    redirect_uris: [ 'http://localhost:8000/callback' ],
+    redirect_uris: [ 'http://localhost:8000/callback','http://35.222.18.182:8000/callback' ],
     response_types: [ 'code' ],
     grant_types: [ 'authorization_code' ]
   } ]
 };
 
-const oidc = new Provider('http://localhost:3000', configuration);
+const oidc = new Provider('http://35.222.18.182:3000', configuration);
 
 
 const server = oidc.listen(PORT, () => {
